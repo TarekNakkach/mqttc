@@ -16,38 +16,41 @@ int main(int argc, char *argv[])
 {
     int args;
     char *host = NULL;
-    int port, keepalive, qos;
+    int port, keepalive, qos, debug;
     bool clean_session;
-    while ((args = getopt(argc, argv, "hpaqc:")) != -1) {
+    while ((args = getopt(argc, argv, "h:p:a:q:c:d:")) != -1) {
         switch (args)
         {
             case 'h':
                 host = optarg;
                 break;
             case 'p':
-                port = optarg;
+                port = atoi(optarg);
                 break;
             case 'a':
-                keepalive = optarg;
+                keepalive = atoi(optarg);
                 break;
             case 'q':
-                qos = optarg;
+                qos = atoi(optarg);
                 break;
             case 'c':
                 clean_session = optarg;
+                break;
+            case 'd':
+                debug = atoi(optarg);
                 break;
         }
     }
 
     openlog(argv[0], LOG_CONS|LOG_PID, LOG_DAEMON);
-    setlogmask(LOG_UPTO(LOG_ERR));
+    setlogmask(LOG_UPTO(debug));
    
     mosquitto_lib_init();
 
     struct mosquitto *mosq = NULL;
     mosq = mosquitto_new(argv[0], clean_session, NULL);
     if (!mosq) {
-        LOG(LOG_ERR, "######### Failed to create mosquitto instance");
+        LOG(LOG_ERR, "[mqttc] Failed to create mosquitto instance");
         goto out;
     }
 
@@ -57,10 +60,10 @@ int main(int argc, char *argv[])
     mosquitto_subscribe_callback_set(mosq, mqtt_subscribe_callback);
     mosquitto_unsubscribe_callback_set(mosq, mqtt_unsubscribe_callback);
 
-    LOG(LOG_NOTICE, "######### Start connection to (%s) : port (%d)", host, port);
+    LOG(LOG_NOTICE, "[mqttc] Start connection to (%s) : port (%d)", host, port);
 
     if (mosquitto_connect(mosq, host, port, keepalive)) {
-        LOG(LOG_ERR, "######### %s", strerror(errno));
+        LOG(LOG_ERR, "[mqttc] %s", strerror(errno));
         goto out;
     }
 

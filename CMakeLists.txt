@@ -11,6 +11,6 @@ add_executable(${EXE_NAME} ${SOURCES})
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O0 -ggdb")
 
-target_link_libraries (${EXE_NAME} LINK_PUBLIC json-c mosquitto)
+target_link_libraries (${EXE_NAME} LINK_PUBLIC mosquitto)
 
 install(TARGETS ${EXE_NAME} DESTINATION bin)
